@@ -1,0 +1,4 @@
+هذا المشروع تم ضبطه بإصدارات مستقرة من Gradle وAndroid وKotlin.
+ارفع محتويات هذا المجلد إلى GitHub ثم افتح Actions وشغّل:
+Build MyGlass Clone APKs
+بعد النجاح نزّل MyGlass-APKs.

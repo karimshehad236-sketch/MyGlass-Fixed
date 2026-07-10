@@ -1,0 +1,15 @@
+طريقة إخراج ملفات APK بدون Android Studio
+
+1) أنشئ مستودعًا جديدًا على GitHub.
+2) ارفع كل محتويات هذا المجلد إلى المستودع.
+3) افتح تبويب Actions.
+4) اختر Build AnotherGlass APKs.
+5) اضغط Run workflow.
+6) بعد انتهاء البناء افتح التشغيل الناجح.
+7) من Artifacts نزّل AnotherGlass-APKs.
+
+ستجد داخله:
+- AnotherGlass-Mobile.apk للهاتف.
+- AnotherGlass-GlassXE.apk لنظارة Google Glass Explorer Edition.
+
+تم تعطيل وحدات Enterprise Edition وX-Ray غير الضرورية لبناء الهاتف وGlass XE فقط.
