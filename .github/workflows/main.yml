@@ -1,0 +1,42 @@
+name: Build MyGlass APKs
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download project
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Make Gradle executable
+        run: chmod +x gradlew
+
+      - name: Build phone and Glass APKs
+        run: ./gradlew :mobile:assembleDebug :glass-xe:assembleDebug --stacktrace
+
+      - name: Collect APK files
+        run: |
+          mkdir -p output
+          find mobile/build/outputs/apk -name "*.apk" -exec cp {} output/MyGlass-Mobile.apk \;
+          find glass-xe/build/outputs/apk -name "*.apk" -exec cp {} output/MyGlass-GlassXE.apk \;
+
+      - name: Upload APK files
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyGlass-APKs
+          path: output/*.apk
