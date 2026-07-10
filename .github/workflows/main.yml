@@ -11,8 +11,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download project
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Extract project
+        run: |
+          rm -rf project
+          mkdir project
+          unzip -q MyGlass_Working_Source.zip -d project
+          find project -maxdepth 3 -type f | head -100
+
+      - name: Locate project root
+        run: |
+          ROOT="$(find project -type f -name gradlew -printf '%h\n' | head -1)"
+          echo "PROJECT_ROOT=$ROOT" >> "$GITHUB_ENV"
+          echo "Project root: $ROOT"
+          test -n "$ROOT"
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
@@ -23,18 +37,28 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Make Gradle executable
-        run: chmod +x gradlew
+      - name: Accept Android licenses
+        run: yes | sdkmanager --licenses || true
 
-      - name: Build phone and Glass APKs
-        run: ./gradlew :mobile:assembleDebug :glass-xe:assembleDebug --stacktrace
+      - name: Build APK files
+        run: |
+          cd "$PROJECT_ROOT"
+          chmod +x gradlew
+          ./gradlew :mobile:assembleDebug :glass-xe:assembleDebug --stacktrace
 
       - name: Collect APK files
         run: |
           mkdir -p output
-          find mobile/build/outputs/apk -name "*.apk" -exec cp {} output/MyGlass-Mobile.apk \;
-          find glass-xe/build/outputs/apk -name "*.apk" -exec cp {} output/MyGlass-GlassXE.apk \;
+          find "$PROJECT_ROOT/mobile/build/outputs/apk" -name "*.apk" -exec cp {} output/MyGlass-Mobile.apk \;
+          find "$PROJECT_ROOT/glass-xe/build/outputs/apk" -name "*.apk" -exec cp {} output/MyGlass-GlassXE.apk \;
+          ls -la output
 
+      - name: Upload APK files
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyGlass-APKs
+          path: output/*.apk
+          if-no-files-found: error
       - name: Upload APK files
         uses: actions/upload-artifact@v4
         with:
